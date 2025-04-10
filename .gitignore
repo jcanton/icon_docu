@@ -1,0 +1,46 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.so
+
+# Virtual environment
+.venv/
+env/
+venv/
+
+# Hatch build artifacts
+dist/
+build/
+*.egg-info/
+.eggs/
+
+# Pytest cache
+.pytest_cache/
+
+# VSCode and editor files
+.vscode/
+.idea/
+*.swp
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs and temp files
+*.log
+*.tmp
+*.bak
+
+# Coverage
+htmlcov/
+.coverage
+.coverage.*
+
+# Static build artifacts (optional, if you bundle anything later)
+static/build/
+
+# Node modules (if frontend builds are added later)
+node_modules/
+

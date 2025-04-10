@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>LaTeX Graph Viewer</title>
+  <style>
+    #cy {
+      width: 100%;
+      height: 100vh;
+      display: block;
+    }
+    body {
+      margin: 0;
+      font-family: sans-serif;
+    }
+  </style>
+</head>
+<body>
+  <div id="cy"></div>
+
+  <script src="https://unpkg.com/cytoscape@3.24.0/dist/cytoscape.min.js"></script>
+
+  <script>
+    // Load macros first, then MathJax, then graph
+    fetch('/macros')
+      .then(res => res.json())
+      .then(macros => {
+        window.MathJax = {
+          tex: { macros: macros },
+          svg: { fontCache: 'global' }
+        };
+        const script = document.createElement('script');
+        script.src = 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js';
+        script.async = true;
+        script.onload = loadGraph;
+        document.head.appendChild(script);
+      });
+
+    function loadGraph() {
+      fetch('/graph')
+        .then(res => res.json())
+        .then(data => {
+          const cy = cytoscape({
+            container: document.getElementById('cy'),
+            elements: data,
+            layout: { name: 'grid' },
+            style: [{
+              selector: 'node',
+              style: {
+                'label': 'data(label)',
+                'text-wrap': 'wrap',
+                'text-valign': 'center',
+                'text-halign': 'center',
+                'background-color': '#f0f0f0',
+                'shape': 'roundrectangle',
+                'padding': '10px',
+                'font-size': 1 // suppress native font rendering
+              }
+            }, {
+              selector: 'edge',
+              style: {
+                'width': 2,
+                'line-color': '#ccc',
+                'target-arrow-color': '#ccc',
+                'target-arrow-shape': 'triangle'
+              }
+            }]
+          });
+
+          // Wait for nodes to be in the DOM before typesetting LaTeX
+          setTimeout(() => {
+            cy.nodes().forEach(node => {
+              const domNode = node.popperRef().getBoundingClientRect(); // ensure it's in DOM
+            });
+            MathJax.typesetPromise();
+          }, 100);
+        });
+    }
+  </script>
+</body>
+</html>
+

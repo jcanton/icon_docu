@@ -1,0 +1,58 @@
+[project]
+name = "icon-docu"
+dynamic = ["version"]
+description = 'Web-based graph visualization of the code flow'
+readme = "README.md"
+requires-python = ">=3.10"
+license = "MIT"
+keywords = []
+authors = [{ name = "jcanton", email = "jacopo.canton@gmail.com" }]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: PyPy",
+]
+dependencies = ["flask", "TexSoup"]
+
+[project.scripts]
+icon-docu = "icon_docu.app:main"
+
+[project.urls]
+Documentation = "https://github.com/jcanton/icon-docu#readme"
+Issues = "https://github.com/jcanton/icon-docu/issues"
+Source = "https://github.com/jcanton/icon-docu"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/icon_docu"]
+
+[tool.hatch.version]
+path = "src/icon_docu/__about__.py"
+
+[tool.hatch.envs.types]
+extra-dependencies = ["mypy>=1.0.0"]
+[tool.hatch.envs.types.scripts]
+check = "mypy --install-types --non-interactive {args:src/icon_docu tests}"
+
+[tool.coverage.run]
+source_pkgs = ["icon_docu", "tests"]
+branch = true
+parallel = true
+omit = ["src/icon_docu/__about__.py"]
+
+[tool.coverage.paths]
+icon_docu = ["src/icon_docu", "*/icon-docu/src/icon_docu"]
+tests = ["tests", "*/icon-docu/tests"]
+
+[tool.coverage.report]
+exclude_lines = ["no cov", "if __name__ == .__main__.:", "if TYPE_CHECKING:"]
