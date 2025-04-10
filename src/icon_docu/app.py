@@ -1,9 +1,10 @@
-from flask import Flask, jsonify, send_from_directory
 import os
-import json
-import TexSoup
 from threading import Thread
-from latex_graph_webapp.watcher import watch_node_files
+
+import TexSoup
+from flask import Flask, jsonify, send_from_directory
+
+from icon_docu.watcher import watch_node_files
 
 app = Flask(__name__, static_folder=os.path.join(os.path.dirname(__file__), '../../static'))
 
@@ -14,12 +15,12 @@ CACHE_FILE = os.path.join(BASE_DIR, '.graph_cache.json')
 
 _graph_data = None
 
-def load_node_from_file(name):
+def load_node_from_file(file_name):
     try:
-        with open(os.path.join(NODE_DIR, f"{name}.tex"), "r") as f:
+        with open(os.path.join(NODE_DIR, f"{file_name}"), "r") as f:
             return f.read()
     except FileNotFoundError:
-        return name  # fallback
+        return file_name  # fallback
 
 def tex_macros_to_mathjax(filename: str) -> dict:
     latex_macros = {}
@@ -34,11 +35,12 @@ def tex_macros_to_mathjax(filename: str) -> dict:
     return latex_macros
 
 def load_graph():
+    nodes = [
+        {"data": {"id": os.path.splitext(file)[0], "label": load_node_from_file(file)}}
+        for file in os.listdir(NODE_DIR) if file.endswith(".tex")
+    ]
     return {
-        "nodes": [
-            {"data": {"id": "a", "label": load_node_from_file("a")}},
-            {"data": {"id": "b", "label": load_node_from_file("b")}},
-        ],
+        "nodes": nodes,
         "edges": [
             {"data": {"source": "a", "target": "b"}}
         ]

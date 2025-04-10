@@ -4,14 +4,22 @@
   <meta charset="UTF-8" />
   <title>LaTeX Graph Viewer</title>
   <style>
-    #cy {
-      width: 100%;
-      height: 100vh;
-      display: block;
-    }
     body {
       margin: 0;
       font-family: sans-serif;
+      overflow: hidden;
+    }
+    #cy {
+      width: 100%;
+      height: 100vh;
+      position: absolute;
+      top: 0;
+      left: 0;
+    }
+    .node-label {
+      position: absolute;
+      pointer-events: none;
+      white-space: nowrap;
     }
   </style>
 </head>
@@ -19,18 +27,19 @@
   <div id="cy"></div>
 
   <script src="https://unpkg.com/cytoscape@3.24.0/dist/cytoscape.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
 
   <script>
-    // Load macros first, then MathJax, then graph
     fetch('/macros')
       .then(res => res.json())
       .then(macros => {
         window.MathJax = {
           tex: { macros: macros },
-          svg: { fontCache: 'global' }
+          options: { renderActions: { addMenu: [] } },
+          svg: { fontCache: 'none' }
         };
         const script = document.createElement('script');
-        script.src = 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-svg.js';
+        script.src = 'https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-chtml.js';
         script.async = true;
         script.onload = loadGraph;
         document.head.appendChild(script);
@@ -47,33 +56,56 @@
             style: [{
               selector: 'node',
               style: {
-                'label': 'data(label)',
-                'text-wrap': 'wrap',
-                'text-valign': 'center',
-                'text-halign': 'center',
-                'background-color': '#f0f0f0',
-                'shape': 'roundrectangle',
-                'padding': '10px',
-                'font-size': 1 // suppress native font rendering
+                'background-color': '#eee',
+                'width': 1,
+                'height': 1,
+                'border-width': 1,
+                'border-color': '#ccc'
               }
             }, {
               selector: 'edge',
               style: {
                 'width': 2,
-                'line-color': '#ccc',
-                'target-arrow-color': '#ccc',
+                'line-color': '#aaa',
+                'target-arrow-color': '#aaa',
                 'target-arrow-shape': 'triangle'
               }
-            }]
+            }],
+            userZoomingEnabled: true,
+            userPanningEnabled: true,
+            boxSelectionEnabled: false
           });
 
-          // Wait for nodes to be in the DOM before typesetting LaTeX
-          setTimeout(() => {
+          const container = document.getElementById('cy');
+          const labelDivs = {};
+
+          // Create HTML divs for each node label
+          cy.nodes().forEach(node => {
+            const div = document.createElement('div');
+            div.className = 'node-label';
+            div.innerHTML = `\\(${node.data('label')}\\)`;
+            container.appendChild(div);
+            labelDivs[node.id()] = div;
+          });
+
+          // Update position of labels on render
+          function updateLabelPositions() {
             cy.nodes().forEach(node => {
-              const domNode = node.popperRef().getBoundingClientRect(); // ensure it's in DOM
+              const position = node.renderedPosition();
+              const div = labelDivs[node.id()];
+              div.style.left = `${position.x}px`;
+              div.style.top = `${position.y}px`;
+              div.style.transform = 'translate(-50%, -50%)';
             });
-            MathJax.typesetPromise();
-          }, 100);
+          }
+
+          cy.on('render', updateLabelPositions);
+          cy.on('pan zoom', updateLabelPositions);
+          cy.on('position', updateLabelPositions);
+          cy.on('dragfree', updateLabelPositions);
+
+          updateLabelPositions();
+          MathJax.typesetPromise();
         });
     }
   </script>
