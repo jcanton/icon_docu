@@ -70,6 +70,13 @@
   <script src="https://unpkg.com/cytoscape@3.24.0/dist/cytoscape.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.js"></script>
+  <!-- <script src="https://unpkg.com/cytoscape-fcose@2.0.2/cytoscape-fcose.js"></script> -->
+  <script src="https://unpkg.com/layout-base/layout-base.js"></script>
+<script src="https://unpkg.com/cose-base/cose-base.js"></script>
+<script src="https://unpkg.com/cytoscape-fcose/cytoscape-fcose.js"></script>
+  <script>
+    cytoscape.use(cytoscapeFcose); // Register the fcose layout
+  </script>
 
   <script>
     fetch('/macros')
@@ -93,10 +100,27 @@
       fetch('/graph')
         .then(res => res.json())
         .then(data => {
+          if (!data || !data.nodes || !data.edges) {
+            console.error('Invalid graph data:', data);
+            alert('Failed to load graph data. Please check the server response.');
+            return;
+          }
+
           cy = cytoscape({
             container: document.getElementById('cy'),
             elements: data,
-            layout: { name: 'grid' },
+            layout: { 
+              name: 'fcose',
+              animate: true,
+              randomize: true,
+              fit: true,
+              padding: 30,
+              nodeRepulsion: 4500,
+              idealEdgeLength: 100,
+              edgeElasticity: 0.45,
+              gravity: 0.25,
+              numIter: 2500
+            },
             style: [{
               selector: 'node',
               style: {
@@ -105,7 +129,7 @@
                 'height': 1,
                 'border-width': 1,
                 'border-color': '#ccc',
-                'border-radius': '8px'  // rounded corners for nodes
+                'shape': 'round-rectangle' // Use round-rectangle for rounded corners
               }
             }, {
               selector: 'edge',
@@ -113,12 +137,19 @@
                 'width': 2,
                 'line-color': '#aaa',
                 'target-arrow-color': '#aaa',
-                'target-arrow-shape': 'triangle'
+                'target-arrow-shape': 'triangle',
+                'curve-style': 'bezier'
               }
             }],
             userZoomingEnabled: true,
             userPanningEnabled: true,
             boxSelectionEnabled: false
+          });
+
+          cy.on('layoutstop', () => {
+            console.log('Layout completed');
+            updateLabelPositions();
+            MathJax.typesetPromise();
           });
 
           const container = document.getElementById('cy');
@@ -163,7 +194,10 @@
           cy.on('dragfree', updateLabelPositions);
 
           updateLabelPositions();
-          MathJax.typesetPromise();
+        })
+        .catch(err => {
+          console.error('Error loading graph:', err);
+          alert('Failed to load graph. Check the console for details.');
         });
     }
 
