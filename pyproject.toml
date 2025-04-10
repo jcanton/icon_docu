@@ -16,7 +16,7 @@ classifiers = [
     "Programming Language :: Python :: Implementation :: CPython",
     "Programming Language :: Python :: Implementation :: PyPy",
 ]
-dependencies = ["flask", "TexSoup"]
+dependencies = ["flask", "TexSoup", "watchdog"]
 
 [project.scripts]
 icon-docu = "icon_docu.app:main"
