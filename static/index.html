@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <title>LaTeX Graph Viewer</title>
@@ -9,6 +10,7 @@
       font-family: sans-serif;
       overflow: hidden;
     }
+
     #cy {
       width: 100%;
       height: 80vh;
@@ -16,6 +18,7 @@
       top: 0;
       left: 0;
     }
+
     .node-label {
       position: absolute;
       pointer-events: none;
@@ -26,6 +29,7 @@
       border-radius: 5px;
       border: 1px solid #ccc;
     }
+
     .node-title {
       position: absolute;
       pointer-events: none;
@@ -36,6 +40,7 @@
       font-size: 14px;
       text-align: center;
     }
+
     textarea {
       font-family: "Arial", sans-serif;
       border: none;
@@ -46,6 +51,7 @@
       padding: 0;
       margin: 0;
     }
+
     .control-panel {
       position: fixed;
       top: 85%;
@@ -60,6 +66,7 @@
     }
   </style>
 </head>
+
 <body>
   <div id="cy"></div>
   <div class="control-panel">
@@ -70,10 +77,9 @@
   <script src="https://unpkg.com/cytoscape@3.24.0/dist/cytoscape.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.js"></script>
-  <!-- <script src="https://unpkg.com/cytoscape-fcose@2.0.2/cytoscape-fcose.js"></script> -->
   <script src="https://unpkg.com/layout-base/layout-base.js"></script>
-<script src="https://unpkg.com/cose-base/cose-base.js"></script>
-<script src="https://unpkg.com/cytoscape-fcose/cytoscape-fcose.js"></script>
+  <script src="https://unpkg.com/cose-base/cose-base.js"></script>
+  <script src="https://unpkg.com/cytoscape-fcose/cytoscape-fcose.js"></script>
   <script>
     cytoscape.use(cytoscapeFcose); // Register the fcose layout
   </script>
@@ -83,7 +89,11 @@
       .then(res => res.json())
       .then(macros => {
         window.MathJax = {
-          tex: { macros: macros },
+          tex: {
+            macros: macros,
+            inlineMath: [['$', '$'], ['\\(', '\\)']], // Enable single dollar for inline math
+            displayMath: [['$$', '$$'], ['\\[', '\\]']] // And double dollar for display math
+          },
           options: { renderActions: { addMenu: [] } },
           svg: { fontCache: 'none' }
         };
@@ -109,7 +119,7 @@
           cy = cytoscape({
             container: document.getElementById('cy'),
             elements: data,
-            layout: { 
+            layout: {
               name: 'fcose',
               animate: true,
               randomize: true,
@@ -160,7 +170,7 @@
           cy.nodes().forEach(node => {
             const div = document.createElement('div');
             div.className = 'node-label';
-            div.innerHTML = `\\(${node.data('label')}\\)`;
+            div.innerHTML = node.data('label'); // Render the label as-is
             div.contentEditable = false;
             container.appendChild(div);
 
@@ -179,13 +189,20 @@
               const position = node.renderedPosition();
               const div = labelDivs[node.id()];
               const titleDiv = titleDivs[node.id()];
+
+              // Update label position
               div.style.left = `${position.x}px`;
               div.style.top = `${position.y}px`;
-              titleDiv.style.left = `${position.x}px`;
-              titleDiv.style.top = `${position.y - 25}px`; // Title above the node
               div.style.transform = 'translate(-50%, -50%)';
+
+              // Update title position based on label height
+              const labelHeight = div.offsetHeight;
+              titleDiv.style.left = `${position.x}px`;
+              titleDiv.style.top = `${position.y - labelHeight / 2 - 10}px`; // Adjust title above the label
               titleDiv.style.transform = 'translate(-50%, -50%)';
             });
+
+            //MathJax.typesetPromise(); // Process MathJax after updating positions (screws up macros)
           }
 
           cy.on('render', updateLabelPositions);
@@ -215,4 +232,5 @@
     });
   </script>
 </body>
+
 </html>
