@@ -69,10 +69,6 @@
 
 <body>
   <div id="cy"></div>
-  <div class="control-panel">
-    <button id="export-img">Export as Image</button>
-    <button id="export-pdf">Export as PDF</button>
-  </div>
 
   <script src="https://unpkg.com/cytoscape@3.24.0/dist/cytoscape.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
@@ -90,7 +86,10 @@
       .then(macros => {
         window.MathJax = {
           tex: {
-            macros: macros,
+            macros: {
+              ...macros,
+              Large: ["\\htmlStyle{font-size:1.5em}{#1}", 1] // Define \Large to scale font size
+            },
             inlineMath: [['$', '$'], ['\\(', '\\)']], // Enable single dollar for inline math
             displayMath: [['$$', '$$'], ['\\[', '\\]']] // And double dollar for display math
           },
@@ -202,7 +201,10 @@
               titleDiv.style.transform = 'translate(-50%, -50%)';
             });
 
-            //MathJax.typesetPromise(); // Process MathJax after updating positions (screws up macros)
+            //// Force MathJax to reprocess the content
+            //MathJax.typesetPromise()
+            //  .then(() => console.log("MathJax typeset complete"))
+            //  .catch(err => console.error("MathJax typeset error:", err));
           }
 
           cy.on('render', updateLabelPositions);
@@ -218,18 +220,6 @@
         });
     }
 
-    document.getElementById('export-img').addEventListener('click', () => {
-      const imgData = cy.png({ full: true });
-      const a = document.createElement('a');
-      a.href = imgData;
-      a.download = 'graph.png';
-      a.click();
-    });
-
-    document.getElementById('export-pdf').addEventListener('click', () => {
-      const graphElement = document.getElementById('cy');
-      html2pdf().from(graphElement).save('graph.pdf');
-    });
   </script>
 </body>
 

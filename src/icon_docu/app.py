@@ -51,7 +51,17 @@ def load_graph():
         for file in os.listdir(NODE_DIR)
         if file.endswith(".tex")
     ]
-    return {"nodes": nodes, "edges": [{"data": {"source": "a", "target": "b"}}]}
+    return {
+        "nodes": nodes,
+        "edges": [
+            {"data": {"source": "compute_horizontal_gradient_of_exner_pressure_for_flat_coordinates", "target": "add_temporal_tendencies_to_vn"}},
+            {"data": {"source": "predictor_stencils_2_3", "target": "compute_horizontal_gradient_of_exner_pressure_for_flat_coordinates"}},
+            #
+            {"data": {"source": "compute_horizontal_advection_of_rho_and_theta", "target": "add_temporal_tendencies_to_vn"}},
+            #
+            {"data": {"source": "compute_advective_normal_wind_tendency", "target": "add_temporal_tendencies_to_vn"}},
+        ]
+    }
 
 
 @app.route("/graph")
