@@ -32,6 +32,7 @@ Thumbs.db
 *.log
 *.tmp
 *.bak
+test_nodes/
 
 # Coverage
 htmlcov/

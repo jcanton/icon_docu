@@ -60,6 +60,7 @@ def load_graph():
             {"data": {"source": "compute_horizontal_advection_of_rho_and_theta", "target": "add_temporal_tendencies_to_vn"}},
             #
             {"data": {"source": "compute_advective_normal_wind_tendency", "target": "add_temporal_tendencies_to_vn"}},
+            {"data": {"source": "interpolate_to_cell_center", "target": "compute_advective_normal_wind_tendency"}},
         ]
     }
 

@@ -37,7 +37,7 @@
       background-color: #f0f0f0;
       border-radius: 5px;
       padding: 5px;
-      font-size: 14px;
+      font-size: 12px;
       text-align: center;
     }
 
@@ -199,7 +199,36 @@
               titleDiv.style.left = `${position.x}px`;
               titleDiv.style.top = `${position.y - labelHeight / 2 - 10}px`; // Adjust title above the label
               titleDiv.style.transform = 'translate(-50%, -50%)';
+
+              // Ensure title width does not exceed label width
+              const maxNodeWidth = div.offsetWidth; // Dynamically get the label div's width
+              titleDiv.style.maxWidth = `${maxNodeWidth}px`;
+              titleDiv.style.overflowWrap = 'break-word'; // Wrap text if too wide
+              titleDiv.style.fontSize = '12px'; // Default font size
+
+              // Reduce font size if text is still too wide
+              while (titleDiv.scrollWidth > maxNodeWidth && parseFloat(titleDiv.style.fontSize) > 8) {
+                titleDiv.style.fontSize = `${parseFloat(titleDiv.style.fontSize) - 1}px`;
+              }
             });
+          }
+
+          function refreshLayout() {
+            cy.layout({
+              name: 'fcose',
+              animate: false,
+              randomize: false,
+              fit: true,
+              padding: 30,
+              nodeRepulsion: 4500,
+              idealEdgeLength: 100,
+              edgeElasticity: 0.45,
+              gravity: 0.25,
+              numIter: 2500,
+              avoidOverlap: true, // Prevent node overlap
+              nodeDimensionsIncludeLabels: true // Include labels in bounding box calculations
+            }).run();
+            console.log('Layout refreshed');
           }
 
           cy.on('layoutstop', () => {
@@ -221,14 +250,15 @@
             }).run();
           });
 
-
-
           updateLabelPositions();
 
           // Ensure MathJax processes the content only after all updates are complete
           setTimeout(() => {
             MathJax.typesetPromise()
-              .then(() => console.log("MathJax typeset complete"))
+              .then(() => {
+                console.log("MathJax typeset complete");
+                // refreshLayout(); // Refresh layout after MathJax processing
+              })
               .catch(err => console.error("MathJax typeset error:", err));
           }, 100); // Delay to ensure DOM is fully updated
         })
