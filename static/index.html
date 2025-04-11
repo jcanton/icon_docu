@@ -75,10 +75,8 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.js"></script>
   <script src="https://unpkg.com/layout-base/layout-base.js"></script>
   <script src="https://unpkg.com/cose-base/cose-base.js"></script>
-  <script src="https://unpkg.com/cytoscape-fcose/cytoscape-fcose.js"></script>
-  <script>
-    cytoscape.use(cytoscapeFcose); // Register the fcose layout
-  </script>
+  <script src="https://unpkg.com/cytoscape-cose-bilkent/cytoscape-cose-bilkent.js"></script>
+  <!-- <script src="https://unpkg.com/cytoscape-fcose/cytoscape-fcose.js"></script> -->
 
   <script>
     fetch('/macros')
@@ -123,18 +121,32 @@
             container: document.getElementById('cy'),
             elements: data,
             layout: {
-              name: 'fcose',
-              animate: true,
-              randomize: true,
-              fit: true,
-              padding: 30,
-              nodeRepulsion: 4500,
-              idealEdgeLength: 100,
-              edgeElasticity: 0.45,
-              gravity: 0.25,
-              numIter: 2500,
-              avoidOverlap: true, // Prevent node overlap
-              nodeDimensionsIncludeLabels: true // Include labels in bounding box calculations
+              name: 'cose-bilkent',
+              // 'draft', 'default' or 'proof" 
+              // - 'draft' fast cooling rate 
+              // - 'default' moderate cooling rate 
+              // - "proof" slow cooling rate
+              quality: 'default',
+              nodeDimensionsIncludeLabels: true, // Whether to include labels in node dimensions. Useful for avoiding label overlap
+              refresh: 30, // number of ticks per frame; higher is faster but more jerky
+              fit: true, // Whether to fit the network view after when done
+              padding: 10, // Padding on fit
+              randomize: true, // Whether to enable incremental mode
+              nodeRepulsion: 19500, // Node repulsion (non overlapping) multiplier
+              idealEdgeLength: 50, // Ideal (intra-graph) edge length
+              edgeElasticity: 0.45, // Divisor to compute edge forces
+              nestingFactor: 0.1, // Nesting factor (multiplier) to compute ideal edge length for inter-graph edges
+              gravity: 0.25, // Gravity force (constant)
+              numIter: 2500, // Maximum number of iterations to perform
+              tile: true, // Whether to tile disconnected nodes
+              animate: 'end', // Type of layout animation. The option set is {'during', 'end', false}
+              animationDuration: 500, // Duration for animate:end
+              tilingPaddingVertical: 10, // Amount of vertical space to put between degree zero nodes during tiling (can also be a function)
+              tilingPaddingHorizontal: 10, // Amount of horizontal space to put between degree zero nodes during tiling (can also be a function)
+              gravityRangeCompound: 1.5, // Gravity range (constant) for compounds
+              gravityCompound: 1.0, // Gravity force (constant) for compounds
+              gravityRange: 3.8, // Gravity range (constant)
+              initialEnergyOnIncremental: 0.5 // Initial cooling factor for incremental layout
             },
             style: [{
               selector: 'node',
@@ -213,24 +225,6 @@
             });
           }
 
-          function refreshLayout() {
-            cy.layout({
-              name: 'fcose',
-              animate: false,
-              randomize: false,
-              fit: true,
-              padding: 30,
-              nodeRepulsion: 4500,
-              idealEdgeLength: 100,
-              edgeElasticity: 0.45,
-              gravity: 0.25,
-              numIter: 2500,
-              avoidOverlap: true, // Prevent node overlap
-              nodeDimensionsIncludeLabels: true // Include labels in bounding box calculations
-            }).run();
-            console.log('Layout refreshed');
-          }
-
           cy.on('layoutstop', () => {
             console.log('Layout completed');
             updateLabelPositions();
@@ -239,16 +233,6 @@
           cy.on('pan zoom', updateLabelPositions);
           cy.on('position', updateLabelPositions);
           cy.on('dragfree', updateLabelPositions);
-          cy.on('dragfree zoom pan', () => {
-            cy.layout({
-              name: 'fcose',
-              animate: false, // Avoid animation for better performance during interactions
-              randomize: false, // Keep the current positions
-              fit: false, // Do not refit the graph
-              avoidOverlap: true,
-              nodeDimensionsIncludeLabels: true
-            }).run();
-          });
 
           updateLabelPositions();
 
@@ -257,7 +241,6 @@
             MathJax.typesetPromise()
               .then(() => {
                 console.log("MathJax typeset complete");
-                // refreshLayout(); // Refresh layout after MathJax processing
               })
               .catch(err => console.error("MathJax typeset error:", err));
           }, 100); // Delay to ensure DOM is fully updated

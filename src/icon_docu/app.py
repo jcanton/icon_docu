@@ -61,6 +61,10 @@ def load_graph():
             #
             {"data": {"source": "compute_advective_normal_wind_tendency", "target": "add_temporal_tendencies_to_vn"}},
             {"data": {"source": "interpolate_to_cell_center", "target": "compute_advective_normal_wind_tendency"}},
+            {"data": {"source": "interpolate_vn_to_ie_and_compute_ekin_on_edges", "target": "compute_advective_normal_wind_tendency"}},
+            {"data": {"source": "compute_tangential_wind", "target": "compute_advective_normal_wind_tendency"}},
+            {"data": {"source": "mo_math_divrot_rot_vertex_ri_dsl", "target": "compute_advective_normal_wind_tendency"}},
+            {"data": {"source": "interpolate_contravariant_vertical_velocity_to_full_levels", "target": "compute_advective_normal_wind_tendency"}},
         ]
     }
 
