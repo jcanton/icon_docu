@@ -27,8 +27,7 @@
 \newcommand{\vertcolor}[1]{\color{YellowOrange}{#1}}
 \newcommand{\horicolor}[1]{\color{RedViolet}{#1}}
 
-%\renewcommand{\sum}{\text{\Large{$\Sigma$}}} % move sub/superscripts of sum symbol
-\renewcommand{\sum}{\horicolor{\text{$\Sigma$}}} % move sub/superscripts of sum symbol
+\renewcommand{\sum}{{\horicolor{\Large{\Sigma}}}} % move sub/superscripts of sum symbol
 
 %===============================================================================
 % Numerics
@@ -47,8 +46,7 @@
 \newcommand{\Dt}{{\Delta t}}
 \newcommand{\Dz}[1]{{\Delta z}_\vertlevel{#1}}
 \newcommand{\divhori}[1]{\vec{\nabla}\!_h\cdot\left(#1\right)}
-%\newcommand{\Gradn}{{{\text{\Large{$\Delta$}}}}}
-\newcommand{\Gradn}{{\horicolor{\text{$\Delta$}}}}
+\newcommand{\Gradn}{{\horicolor{\Large{\Delta}}}}
 
 % Derivatives
 \newcommand{\ddt}[1]{\frac{\dif #1}{\dif t}}
