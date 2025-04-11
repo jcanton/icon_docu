@@ -33,7 +33,7 @@
     .node-title {
       position: absolute;
       pointer-events: none;
-      font-weight: bold;
+      /* font-weight: bold; */
       background-color: #f0f0f0;
       border-radius: 5px;
       padding: 5px;
@@ -70,9 +70,9 @@
 <body>
   <div id="cy"></div>
 
-  <script src="https://unpkg.com/cytoscape@3.24.0/dist/cytoscape.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.js"></script>
+  <script src="https://unpkg.com/cytoscape@3.31.2/dist/cytoscape.min.js"></script>
+  <!-- <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.1/dist/umd/popper.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.2/html2pdf.bundle.js"></script> -->
   <script src="https://unpkg.com/layout-base/layout-base.js"></script>
   <script src="https://unpkg.com/cose-base/cose-base.js"></script>
   <script src="https://unpkg.com/cytoscape-cose-bilkent/cytoscape-cose-bilkent.js"></script>
@@ -138,7 +138,7 @@
               nestingFactor: 0.1, // Nesting factor (multiplier) to compute ideal edge length for inter-graph edges
               gravity: 0.25, // Gravity force (constant)
               numIter: 2500, // Maximum number of iterations to perform
-              tile: true, // Whether to tile disconnected nodes
+              tile: false, // Whether to tile disconnected nodes
               animate: 'end', // Type of layout animation. The option set is {'during', 'end', false}
               animationDuration: 500, // Duration for animate:end
               tilingPaddingVertical: 10, // Amount of vertical space to put between degree zero nodes during tiling (can also be a function)
@@ -161,7 +161,7 @@
             }, {
               selector: 'edge',
               style: {
-                'width': 2,
+                'width': 1,
                 'line-color': '#aaa',
                 'target-arrow-color': '#aaa',
                 'target-arrow-shape': 'triangle',
@@ -170,7 +170,7 @@
             }],
             userZoomingEnabled: true,
             userPanningEnabled: true,
-            boxSelectionEnabled: false
+            boxSelectionEnabled: false,
           });
 
           const container = document.getElementById('cy');
@@ -182,7 +182,6 @@
             const div = document.createElement('div');
             div.className = 'node-label';
             div.innerHTML = node.data('label'); // Render the label as-is
-            div.contentEditable = false;
             container.appendChild(div);
 
             const titleDiv = document.createElement('div');

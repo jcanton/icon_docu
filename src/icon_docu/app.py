@@ -59,6 +59,8 @@ def load_graph():
     return {
         "nodes": nodes,
         "edges": [
+            #
+            # vn
             {"data": {"source": "compute_horizontal_gradient_of_exner_pressure_for_flat_coordinates", "target": "add_temporal_tendencies_to_vn"}},
             {"data": {"source": "predictor_stencils_2_3", "target": "compute_horizontal_gradient_of_exner_pressure_for_flat_coordinates"}},
             #
@@ -70,6 +72,13 @@ def load_graph():
             {"data": {"source": "compute_tangential_wind", "target": "compute_advective_normal_wind_tendency"}},
             {"data": {"source": "mo_math_divrot_rot_vertex_ri_dsl", "target": "compute_advective_normal_wind_tendency"}},
             {"data": {"source": "interpolate_contravariant_vertical_velocity_to_full_levels", "target": "compute_advective_normal_wind_tendency"}},
+            #
+            {"data": {"source": "compute_tangential_wind", "target": "interpolate_vn_to_ie_and_compute_ekin_on_edges"}},
+            {"data": {"source": "interpolate_vn_to_ie_and_compute_ekin_on_edges", "target": "interpolate_to_cell_center"}},
+            #
+            # diffusion
+            {"data": {"source": "calculate_nabla2_for_theta", "target": "update_theta_and_exner"}},
+            {"data": {"source": "calculate_nabla2_and_smag_coefficients_for_vn", "target": "calculate_nabla2_for_theta"}},
         ]
     }
 
