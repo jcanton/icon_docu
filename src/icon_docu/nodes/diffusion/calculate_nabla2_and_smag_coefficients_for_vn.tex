@@ -1,0 +1,42 @@
+$$\begin{aligned}
+    & \Khsmag{\n}{\e}{\k} = \min{\left(\smaglimit, \max{\left(0, \Khsmag{}{\e}{} - \smagoffset \right)} \right)} \\
+    & \Khsmag{}{ec}{} = \Khsmag{}{\e}{} = \diffmultfacsmag \sqrt{ \khsmagtwo^2 + \khsmagone^2 } \\
+    %
+    & \khsmagtwo = \frac{\khsmagtwo}{\Lvertvert} - \frac{\dvttang\ \orientationtang{\e}}{\Ledge} \\
+    & \khsmagtwo = - \left( \windu{}{\v 2}{} \orientationnormx{\v 2} + \windv{}{\v 2}{} \orientationnormy{\v 2} \right)
+                   + \left( \windu{}{\v 3}{} \orientationnormx{\v 3} + \windv{}{\v 3}{} \orientationnormy{\v 3} \right) \\
+    %
+    & \khsmagone = \frac{\khsmagone\ \orientationtang{\e}}{\Ledge} + \frac{\dvtnorm}{\Lvertvert} \\
+    & \khsmagone = - \left( \windu{}{\v 0}{} \orientationnormx{\v 0} + \windv{}{\v 0}{} \orientationnormy{\v 0} \right)
+                   + \left( \windu{}{\v 1}{} \orientationnormx{\v 1} + \windv{}{\v 1}{} \orientationnormy{\v 1} \right) \\
+    %
+    & \dvttang = - \left( \windu{}{\v 0}{} \orientationtangx{\v 0} + \windv{}{\v 0}{} \orientationtangy{\v 0} \right)
+                 + \left( \windu{}{\v 1}{} \orientationtangx{\v 1} + \windv{}{\v 1}{} \orientationtangy{\v 1} \right) \\
+    & \dvtnorm = - \left( \windu{}{\v 2}{} \orientationtangx{\v 2} + \windv{}{\v 2}{} \orientationtangy{\v 2} \right)
+                 + \left( \windu{}{\v 3}{} \orientationtangx{\v 3} + \windv{}{\v 3}{} \orientationtangy{\v 3} \right) \\
+\end{aligned}$$
+<br>
+<hr>
+$$\begin{aligned}
+    & \Khsmag{\n}{\e}{\k} &&= \min{\left(\smaglimit, \max{\left(0, \diffmultfacsmag \sqrt{ * } - \smagoffset \right)} \right)} \\
+    & * &&= \left(
+            \frac{
+                - \left( \windu{}{\v 2}{} \orientationnormx{\v 2} + \windv{}{\v 2}{} \orientationnormy{\v 2} \right)
+                + \left( \windu{}{\v 3}{} \orientationnormx{\v 3} + \windv{}{\v 3}{} \orientationnormy{\v 3} \right)
+            }{\Lvertvert}
+            - \frac{\left(
+                - \left( \windu{}{\v 0}{} \orientationtangx{\v 0} + \windv{}{\v 0}{} \orientationtangy{\v 0} \right)
+                + \left( \windu{}{\v 1}{} \orientationtangx{\v 1} + \windv{}{\v 1}{} \orientationtangy{\v 1} \right)
+            \right)\orientationtang{\e}}{\Ledge}
+        \right)^2 \\
+    &   &&+ \left(
+            \frac{\left(
+                - \left( \windu{}{\v 0}{} \orientationnormx{\v 0} + \windv{}{\v 0}{} \orientationnormy{\v 0} \right)
+                + \left( \windu{}{\v 1}{} \orientationnormx{\v 1} + \windv{}{\v 1}{} \orientationnormy{\v 1} \right)
+            \right)\orientationtang{\e}}{\Ledge}
+            + \frac{
+                - \left( \windu{}{\v 2}{} \orientationtangx{\v 2} + \windv{}{\v 2}{} \orientationtangy{\v 2} \right)
+                + \left( \windu{}{\v 3}{} \orientationtangx{\v 3} + \windv{}{\v 3}{} \orientationtangy{\v 3} \right)
+            }{\Lvertvert}
+        \right)^2
+\end{aligned}$$
