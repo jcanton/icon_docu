@@ -40,17 +40,22 @@ def tex_macros_to_mathjax(filename: str) -> dict:
 
 
 def load_graph():
-    nodes = [
-        {
-            "data": {
-                "id": os.path.splitext(file)[0],
-                "label": load_node_from_file(file),
-                "nodeTitle": os.path.splitext(file)[0],
-            }
-        }
-        for file in os.listdir(NODE_DIR)
-        if file.endswith(".tex")
-    ]
+    nodes = []
+    for nodes_group in os.listdir(NODE_DIR):
+        #nodes.append({"data": {"id": nodes_group, "label": nodes_group}})
+        if os.path.isdir(os.path.join(NODE_DIR, nodes_group)):
+            group_nodes = [
+                {
+                    "data": {
+                        "id": os.path.splitext(filename)[0],
+                        "parent": nodes_group,
+                        "label": load_node_from_file(os.path.join(nodes_group, filename)),
+                        "nodeTitle": os.path.splitext(filename)[0],
+                    }
+                }
+                for filename in os.listdir(os.path.join(NODE_DIR, nodes_group))
+            ]
+            nodes.extend(group_nodes)
     return {
         "nodes": nodes,
         "edges": [
