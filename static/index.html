@@ -247,7 +247,7 @@
 
           cy.on('layoutstop', () => { console.log('layoutstop'); updateLabelPositions(); });
           cy.on('render',     () => { console.log('render');     updateLabelPositions(); });
-          cy.on('pan zoom',   () => { console.log('pan zoom');   updateLayout(); });
+          cy.on('pan zoom',   () => { console.log('pan zoom');   updateLabelPositions(); });
           cy.on('position',   () => { console.log('position');   updateLabelPositions(); });
           cy.on('dragfree',   () => { console.log('dragfree');   updateLabelPositions(); });
         })
