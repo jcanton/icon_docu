@@ -121,40 +121,11 @@
           cy = cytoscape({
             container: document.getElementById('cy'),
             elements: data,
-            layout: {
-              name: 'cose-bilkent',
-              // 'draft', 'default' or 'proof" 
-              // - 'draft' fast cooling rate 
-              // - 'default' moderate cooling rate 
-              // - "proof" slow cooling rate
-              quality: 'default',
-              nodeDimensionsIncludeLabels: true, // Whether to include labels in node dimensions. Useful for avoiding label overlap
-              refresh: 30, // number of ticks per frame; higher is faster but more jerky
-              fit: true, // Whether to fit the network view after when done
-              padding: 10, // Padding on fit
-              randomize: true, // Whether to enable incremental mode
-              nodeRepulsion: 19500, // Node repulsion (non overlapping) multiplier
-              idealEdgeLength: 50, // Ideal (intra-graph) edge length
-              edgeElasticity: 0.45, // Divisor to compute edge forces
-              nestingFactor: 0.1, // Nesting factor (multiplier) to compute ideal edge length for inter-graph edges
-              gravity: 0.25, // Gravity force (constant)
-              numIter: 2500, // Maximum number of iterations to perform
-              tile: false, // Whether to tile disconnected nodes
-              animate: 'end', // Type of layout animation. The option set is {'during', 'end', false}
-              animationDuration: 500, // Duration for animate:end
-              tilingPaddingVertical: 10, // Amount of vertical space to put between degree zero nodes during tiling (can also be a function)
-              tilingPaddingHorizontal: 10, // Amount of horizontal space to put between degree zero nodes during tiling (can also be a function)
-              gravityRangeCompound: 1.5, // Gravity range (constant) for compounds
-              gravityCompound: 1.0, // Gravity force (constant) for compounds
-              gravityRange: 3.8, // Gravity range (constant)
-              initialEnergyOnIncremental: 0.5 // Initial cooling factor for incremental layout
-            },
+            layout: null, // Delay layout initialization
             style: [{
               selector: 'node',
               style: {
                 'background-color': '#eee',
-                'width': 1,
-                'height': 1,
                 'border-width': 1,
                 'border-color': '#ccc',
                 'shape': 'round-rectangle' // Use round-rectangle for rounded corners
@@ -222,36 +193,63 @@
               while (titleDiv.scrollWidth > maxNodeWidth && parseFloat(titleDiv.style.fontSize) > 8) {
                 titleDiv.style.fontSize = `${parseFloat(titleDiv.style.fontSize) - 1}px`;
               }
-            });
 
-            MathJax.typesetClear();
+              // Update node dimensions based on label size
+              const labelWidth = div.offsetWidth;
+              node.style({
+                width: labelWidth + 20, // Add padding to account for borders
+                height: labelHeight + 20 // Add padding to account for borders
+              });
+            });
+          }
+
+          function updateLayout() {
+            // Process labels with MathJax before applying the layout
             MathJax.typesetPromise()
               .then(() => {
-                console.log("MathJax typeset complete in labels");
+                console.log("MathJax typeset complete");
+
+                // Update node dimensions before applying the layout
+                updateLabelPositions();
+                console.log("Labels updated");
+
+                // Apply the layout after MathJax processing
+                cy.layout({
+                  name: 'cose-bilkent',
+                  quality: 'default',
+                  nodeDimensionsIncludeLabels: true,
+                  refresh: 30,
+                  fit: false,
+                  padding: 10,
+                  randomize: false,
+                  nodeRepulsion: 19500,
+                  idealEdgeLength: 50,
+                  edgeElasticity: 0.45,
+                  nestingFactor: 0.1,
+                  gravity: 0.25,
+                  numIter: 2500,
+                  tile: false,
+                  animate: false,
+                  animationDuration: 500,
+                  tilingPaddingVertical: 10,
+                  tilingPaddingHorizontal: 10,
+                  gravityRangeCompound: 1.5,
+                  gravityCompound: 1.0,
+                  gravityRange: 3.8,
+                  initialEnergyOnIncremental: 0.5
+                }).run();
+                console.log("Layout applied");
               })
               .catch(err => console.error("MathJax typeset error:", err));
           }
+          
+          updateLayout();
 
-          cy.on('layoutstop', () => {
-            console.log('Layout completed');
-            updateLabelPositions();
-          });
-          cy.on('render', updateLabelPositions);
-          cy.on('pan zoom', updateLabelPositions);
-          cy.on('position', updateLabelPositions);
-          cy.on('dragfree', updateLabelPositions);
-
-          updateLabelPositions();
-
-          // // Ensure MathJax processes the content only after all updates are complete
-          // setTimeout(() => {
-          //   MathJax.typesetClear();
-          //   MathJax.typesetPromise()
-          //     .then(() => {
-          //       console.log("MathJax typeset complete");
-          //     })
-          //     .catch(err => console.error("MathJax typeset error:", err));
-          // }, 100); // Delay to ensure DOM is fully updated
+          cy.on('layoutstop', () => { console.log('layoutstop'); updateLabelPositions(); });
+          cy.on('render',     () => { console.log('render');     updateLabelPositions(); });
+          cy.on('pan zoom',   () => { console.log('pan zoom');   updateLayout(); });
+          cy.on('position',   () => { console.log('position');   updateLabelPositions(); });
+          cy.on('dragfree',   () => { console.log('dragfree');   updateLabelPositions(); });
         })
         .catch(err => {
           console.error('Error loading graph:', err);

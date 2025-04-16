@@ -109,7 +109,7 @@ def main():
         _graph_data = load_graph()
 
     Thread(target=watch_node_files, args=(NODE_DIR, on_change), daemon=True).start()
-    app.run()  # debug=True)
+    app.run(debug=True)
 
 
 if __name__ == "__main__":
