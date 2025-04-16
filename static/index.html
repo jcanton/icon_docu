@@ -83,6 +83,7 @@
       .then(res => res.json())
       .then(macros => {
         window.MathJax = {
+          loader: {load: ['[tex]/color']},
           tex: {
             macros: {
               ...macros,
@@ -93,7 +94,7 @@
             inlineMath: [['$', '$'], ['\\(', '\\)']], // Enable single dollar for inline math
             displayMath: [['$$', '$$'], ['\\[', '\\]']], // And double dollar for display math
             // this one screws up LaTeX macros too
-            //packages: { '[+]': ['color'] } // Enable color package
+            packages: { '[+]': ['color'] } // Enable color package
           },
           options: { renderActions: { addMenu: [] } },
           svg: { fontCache: 'none' }
@@ -222,6 +223,13 @@
                 titleDiv.style.fontSize = `${parseFloat(titleDiv.style.fontSize) - 1}px`;
               }
             });
+
+            MathJax.typesetClear();
+            MathJax.typesetPromise()
+              .then(() => {
+                console.log("MathJax typeset complete in labels");
+              })
+              .catch(err => console.error("MathJax typeset error:", err));
           }
 
           cy.on('layoutstop', () => {
@@ -235,14 +243,15 @@
 
           updateLabelPositions();
 
-          // Ensure MathJax processes the content only after all updates are complete
-          setTimeout(() => {
-            MathJax.typesetPromise()
-              .then(() => {
-                console.log("MathJax typeset complete");
-              })
-              .catch(err => console.error("MathJax typeset error:", err));
-          }, 100); // Delay to ensure DOM is fully updated
+          // // Ensure MathJax processes the content only after all updates are complete
+          // setTimeout(() => {
+          //   MathJax.typesetClear();
+          //   MathJax.typesetPromise()
+          //     .then(() => {
+          //       console.log("MathJax typeset complete");
+          //     })
+          //     .catch(err => console.error("MathJax typeset error:", err));
+          // }, 100); // Delay to ensure DOM is fully updated
         })
         .catch(err => {
           console.error('Error loading graph:', err);
