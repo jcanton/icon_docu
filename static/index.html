@@ -66,6 +66,77 @@
   <!-- <script src="https://unpkg.com/cytoscape-fcose/cytoscape-fcose.js"></script> -->
 
   <script>
+    const NODE_STATES = {
+      DEFAULT: 'default',
+      HIGHLIGHT_PREDECESSORS: 'highlight-predecessors',
+      HIGHLIGHT_SUCCESSORS: 'highlight-successors',
+    };
+
+    const STYLES = {
+      DEFAULT: {
+        'background-color': '#eee',
+        'border-color': '#ccc',
+        'border-width': 1,
+        'shape': 'round-rectangle',
+      },
+      HIGHLIGHT_PREDECESSORS: {
+        'background-color': '#FF4500', // Sunset orange
+        'border-color': '#FFA500', // Yellow
+      },
+      HIGHLIGHT_SUCCESSORS: {
+        'background-color': '#00BFFF', // Complementary blue
+        'border-color': '#1E90FF', // Lighter blue
+      },
+      EDGE_DEFAULT: {
+        'line-color': '#aaa',
+        'target-arrow-color': '#aaa',
+        'width': 1,
+        'target-arrow-shape': 'triangle',
+        'curve-style': 'bezier',
+      },
+      EDGE_PREDECESSORS: {
+        'line-color': '#FF4500', // Sunset orange
+        'target-arrow-color': '#FFA500', // Yellow
+      },
+      EDGE_SUCCESSORS: {
+        'line-color': '#00BFFF', // Complementary blue
+        'target-arrow-color': '#1E90FF', // Lighter blue
+      },
+    };
+
+    let nodeStates = new Map(); // Global state variable to track node states
+
+    function resetStyles(cy) {
+      cy.nodes().forEach((node) => {
+        node.style(STYLES.DEFAULT);
+        nodeStates.set(node.id(), NODE_STATES.DEFAULT);
+      });
+      cy.edges().style(STYLES.EDGE_DEFAULT);
+    }
+
+    function highlightPredecessors(node) {
+      resetStyles(node.cy());
+      node.style(STYLES.HIGHLIGHT_PREDECESSORS);
+      node.predecessors('node').style(STYLES.HIGHLIGHT_PREDECESSORS);
+      node.predecessors('edge').style(STYLES.EDGE_PREDECESSORS);
+      nodeStates.set(node.id(), NODE_STATES.HIGHLIGHT_PREDECESSORS);
+      node.predecessors('node').forEach((n) => nodeStates.set(n.id(), NODE_STATES.HIGHLIGHT_PREDECESSORS));
+    }
+
+    function highlightSuccessors(node) {
+      if (nodeStates.get(node.id()) !== NODE_STATES.DEFAULT) return; // Only highlight if in default state
+      node.style(STYLES.HIGHLIGHT_SUCCESSORS);
+      node.successors('node').style(STYLES.HIGHLIGHT_SUCCESSORS);
+      node.successors('edge').style(STYLES.EDGE_SUCCESSORS);
+    }
+
+    function resetSuccessors(node) {
+      if (nodeStates.get(node.id()) !== NODE_STATES.DEFAULT) return; // Do not reset if not in default state
+      node.style(STYLES.DEFAULT);
+      node.successors('node').style(STYLES.DEFAULT);
+      node.successors('edge').style(STYLES.EDGE_DEFAULT);
+    }
+
     fetch('/macros')
       .then(res => res.json())
       .then(macros => {
@@ -74,13 +145,9 @@
           tex: {
             macros: {
               ...macros,
-              // These just create chaos
-              // Large: ["\\text{\\large{#1}}", 1], // Use MathJax's native \large for font size
-              // color: ["\\textcolor{#1}{#2}", 2] // Ensure \textcolor is used for colors
             },
             inlineMath: [['$', '$'], ['\\(', '\\)']], // Enable single dollar for inline math
             displayMath: [['$$', '$$'], ['\\[', '\\]']], // And double dollar for display math
-            // this one screws up LaTeX macros too
             packages: { '[+]': ['color'] } // Enable color package
           },
           options: { renderActions: { addMenu: [] } },
@@ -97,8 +164,8 @@
 
     function loadGraph() {
       fetch('/graph')
-        .then(res => res.json())
-        .then(data => {
+        .then((res) => res.json())
+        .then((data) => {
           if (!data || !data.nodes || !data.edges) {
             console.error('Invalid graph data:', data);
             alert('Failed to load graph data. Please check the server response.');
@@ -109,24 +176,16 @@
             container: document.getElementById('cy'),
             elements: data,
             layout: null, // Delay layout initialization
-            style: [{
-              selector: 'node',
-              style: {
-                'background-color': '#eee',
-                'border-width': 1,
-                'border-color': '#ccc',
-                'shape': 'round-rectangle' // Use round-rectangle for rounded corners
-              }
-            }, {
-              selector: 'edge',
-              style: {
-                'width': 1,
-                'line-color': '#aaa',
-                'target-arrow-color': '#aaa',
-                'target-arrow-shape': 'triangle',
-                'curve-style': 'bezier'
-              }
-            }],
+            style: [
+              {
+                selector: 'node',
+                style: STYLES.DEFAULT,
+              },
+              {
+                selector: 'edge',
+                style: STYLES.EDGE_DEFAULT,
+              },
+            ],
             userZoomingEnabled: true,
             userPanningEnabled: true,
             boxSelectionEnabled: false,
@@ -135,12 +194,14 @@
           const container = document.getElementById('cy');
           const labelDivs = {};
           const titleDivs = {};
-          let highlightedNode = null; // Track the currently highlighted node
-          let highlightedPredecessors = null; // Track the currently highlighted predecessors
-          let highlightedSuccessors = null; // Track the currently highlighted successors
+
+          // Initialize node states
+          cy.nodes().forEach((node) => {
+            nodeStates.set(node.id(), NODE_STATES.DEFAULT);
+          });
 
           // Create HTML divs for each node label and title
-          cy.nodes().forEach(node => {
+          cy.nodes().forEach((node) => {
             const div = document.createElement('div');
             div.className = 'node-label';
             div.innerHTML = node.data('label'); // Render the label as-is
@@ -157,7 +218,7 @@
 
           // Update position of labels and titles on render
           function updateLabels() {
-            cy.nodes().forEach(node => {
+            cy.nodes().forEach((node) => {
               const position = node.renderedPosition();
               const div = labelDivs[node.id()];
               const titleDiv = titleDivs[node.id()];
@@ -185,12 +246,12 @@
               const minFontSize = 4;
               const adjustedFontSize = Math.max(baseFontSize * zoomLevel, minFontSize);
               div.style.fontSize = `${adjustedFontSize}px`;
-              titleDiv.style.fontSize = `${adjustedFontSize-4}px`;
+              titleDiv.style.fontSize = `${adjustedFontSize - 4}px`;
 
               // Update node dimensions based on label size
               node.style({
-                width: div.offsetWidth*1.02/zoomLevel,
-                height: div.offsetHeight*1.02/zoomLevel,
+                width: div.offsetWidth * 1.01 / zoomLevel,
+                height: div.offsetHeight * 1.02 / zoomLevel,
               });
             });
           }
@@ -199,11 +260,11 @@
             // Process labels with MathJax before applying the layout
             MathJax.typesetPromise()
               .then(() => {
-                console.log("MathJax typeset complete");
+                console.log('MathJax typeset complete');
 
                 // Update node dimensions before applying the layout
                 updateLabels();
-                console.log("Labels updated");
+                console.log('Labels updated');
 
                 // Apply the layout after MathJax processing
                 cy.layout({
@@ -228,162 +289,66 @@
                   gravityRangeCompound: 1.5,
                   gravityCompound: 1.0,
                   gravityRange: 3.8,
-                  initialEnergyOnIncremental: 0.5
+                  initialEnergyOnIncremental: 0.5,
                 }).run();
-                console.log("Layout applied");
+                console.log('Layout applied');
               })
-              .catch(err => console.error("MathJax typeset error:", err));
+              .catch((err) => console.error('MathJax typeset error:', err));
           }
-          
+
           updateLayout();
 
-          cy.on('layoutstop', () => { console.log('layoutstop'); updateLabels(); });
-          cy.on('render',     () => { console.log('render');     updateLabels(); });
-          cy.on('pan zoom',   () => { console.log('pan zoom');   updateLabels(); });
-          cy.on('position',   () => { console.log('position');   updateLabels(); });
-          cy.on('dragfree',   () => { console.log('dragfree');   updateLabels(); });
-          cy.on('zoom',       () => { console.log('zoom');       updateLabels(); });
-
-          // Add event listener for node click
-          cy.on('tap', 'node', (event) => {
-            const node = event.target;
-
-            // If the clicked node is already highlighted, reset styles
-            if (highlightedNode === node) {
-              cy.nodes().style({
-                'background-color': '#eee',
-                'border-color': '#ccc'
-              });
-              cy.edges().style({
-                'line-color': '#aaa',
-                'target-arrow-color': '#aaa'
-              });
-              highlightedNode = null; // Clear the highlighted node
-              return;
-            }
-
-            // Reset styles for all nodes and edges
-            cy.nodes().style({
-              'background-color': '#eee',
-              'border-color': '#ccc'
-            });
-            cy.edges().style({
-              'line-color': '#aaa',
-              'target-arrow-color': '#aaa'
-            });
-
-            // Highlight the clicked node
-            node.style({
-              'background-color': '#FF4500', // Sunset orange
-              'border-color': '#FFA500' // Yellow
-            });
-
-            // Highlight connected edges and nodes
-            node.connectedEdges().style({
-              'line-color': '#FF4500', // Sunset orange
-              'target-arrow-color': '#FFA500' // Yellow
-            }).connectedNodes().style({
-              'background-color': '#FF4500', // Sunset orange
-              'border-color': '#FFA500' // Yellow
-            });
-
-            highlightedNode = node; // Update the highlighted node
+          cy.on('layoutstop', () => {
+            console.log('layoutstop');
+            updateLabels();
+          });
+          cy.on('render', () => {
+            console.log('render');
+            updateLabels();
+          });
+          cy.on('pan zoom', () => {
+            console.log('pan zoom');
+            updateLabels();
+          });
+          cy.on('position', () => {
+            console.log('position');
+            updateLabels();
+          });
+          cy.on('dragfree', () => {
+            console.log('dragfree');
+            updateLabels();
+          });
+          cy.on('zoom', () => {
+            console.log('zoom');
+            updateLabels();
           });
 
           // Add event listener for highlighting predecessors (toggling on click)
           cy.on('tap', 'node', (event) => {
             const node = event.target;
-
-            // If the clicked node is already highlighted for predecessors, reset styles
-            if (highlightedPredecessors === node) {
-              cy.nodes().style({
-                'background-color': '#eee',
-                'border-color': '#ccc'
-              });
-              cy.edges().style({
-                'line-color': '#aaa',
-                'target-arrow-color': '#aaa'
-              });
-              highlightedPredecessors = null; // Clear the highlighted predecessors
-              return;
+            if (nodeStates.get(node.id()) === NODE_STATES.HIGHLIGHT_PREDECESSORS) {
+              resetStyles(cy);
+            } else {
+              highlightPredecessors(node);
             }
-
-            // Reset styles for predecessors
-            cy.nodes().style({
-              'background-color': '#eee',
-              'border-color': '#ccc'
-            });
-            cy.edges().style({
-              'line-color': '#aaa',
-              'target-arrow-color': '#aaa'
-            });
-
-            // Highlight the clicked node
-            node.style({
-              'background-color': '#FF4500', // Sunset orange
-              'border-color': '#FFA500' // Yellow
-            });
-
-            // Highlight all predecessors recursively
-            node.predecessors('node').style({
-              'background-color': '#FF4500', // Sunset orange
-              'border-color': '#FFA500' // Yellow
-            });
-            node.predecessors('edge').style({
-              'line-color': '#FF4500', // Sunset orange
-              'target-arrow-color': '#FFA500' // Yellow
-            });
-
-            highlightedPredecessors = node; // Update the highlighted predecessors
           });
 
           // Add event listeners for highlighting successors (on mouseover and mouseout)
           cy.on('mouseover', 'node', (event) => {
             const node = event.target;
-
-            // Highlight the hovered node
-            node.style({
-              'background-color': '#00BFFF', // Complementary blue
-              'border-color': '#1E90FF' // Lighter blue
-            });
-
-            // Highlight all successors recursively
-            node.successors('node').style({
-              'background-color': '#00BFFF', // Complementary blue
-              'border-color': '#1E90FF' // Lighter blue
-            });
-            node.successors('edge').style({
-              'line-color': '#00BFFF', // Complementary blue
-              'target-arrow-color': '#1E90FF' // Lighter blue
-            });
+            highlightSuccessors(node);
           });
 
           cy.on('mouseout', 'node', (event) => {
             const node = event.target;
-
-            // Reset styles for the hovered node
-            node.style({
-              'background-color': '#eee',
-              'border-color': '#ccc'
-            });
-
-            // Reset styles for all successors
-            node.successors('node').style({
-              'background-color': '#eee',
-              'border-color': '#ccc'
-            });
-            node.successors('edge').style({
-              'line-color': '#aaa',
-              'target-arrow-color': '#aaa'
-            });
+            resetSuccessors(node);
           });
         })
-        .catch(err => {
+        .catch((err) => {
           console.error('Error loading graph:', err);
           alert('Failed to load graph. Check the console for details.');
         });
     }
-
   </script>
 </body>
 
