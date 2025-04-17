@@ -324,12 +324,12 @@
               'border-color': '#FFA500' // Yellow
             });
 
-            // Highlight predecessors
-            node.incomers('node').style({
+            // Highlight all predecessors recursively
+            node.predecessors('node').style({
               'background-color': '#FF4500', // Sunset orange
               'border-color': '#FFA500' // Yellow
             });
-            node.incomers('edge').style({
+            node.predecessors('edge').style({
               'line-color': '#FF4500', // Sunset orange
               'target-arrow-color': '#FFA500' // Yellow
             });
@@ -347,12 +347,12 @@
               'border-color': '#1E90FF' // Lighter blue
             });
 
-            // Highlight successors
-            node.outgoers('node').style({
+            // Highlight all successors recursively
+            node.successors('node').style({
               'background-color': '#00BFFF', // Complementary blue
               'border-color': '#1E90FF' // Lighter blue
             });
-            node.outgoers('edge').style({
+            node.successors('edge').style({
               'line-color': '#00BFFF', // Complementary blue
               'target-arrow-color': '#1E90FF' // Lighter blue
             });
@@ -367,12 +367,12 @@
               'border-color': '#ccc'
             });
 
-            // Reset styles for successors
-            node.outgoers('node').style({
+            // Reset styles for all successors
+            node.successors('node').style({
               'background-color': '#eee',
               'border-color': '#ccc'
             });
-            node.outgoers('edge').style({
+            node.successors('edge').style({
               'line-color': '#aaa',
               'target-arrow-color': '#aaa'
             });
