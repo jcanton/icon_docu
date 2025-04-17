@@ -135,6 +135,7 @@
           const container = document.getElementById('cy');
           const labelDivs = {};
           const titleDivs = {};
+          let highlightedNode = null; // Track the currently highlighted node
 
           // Create HTML divs for each node label and title
           cy.nodes().forEach(node => {
@@ -241,9 +242,33 @@
           cy.on('dragfree',   () => { console.log('dragfree');   updateLabels(); });
           cy.on('zoom',       () => { console.log('zoom');       updateLabels(); });
 
-          // Add event listeners for node click
-          cy.on('mousedown', 'node', (event) => {
+          // Add event listener for node click
+          cy.on('tap', 'node', (event) => {
             const node = event.target;
+
+            // If the clicked node is already highlighted, reset styles
+            if (highlightedNode === node) {
+              cy.nodes().style({
+                'background-color': '#eee',
+                'border-color': '#ccc'
+              });
+              cy.edges().style({
+                'line-color': '#aaa',
+                'target-arrow-color': '#aaa'
+              });
+              highlightedNode = null; // Clear the highlighted node
+              return;
+            }
+
+            // Reset styles for all nodes and edges
+            cy.nodes().style({
+              'background-color': '#eee',
+              'border-color': '#ccc'
+            });
+            cy.edges().style({
+              'line-color': '#aaa',
+              'target-arrow-color': '#aaa'
+            });
 
             // Highlight the clicked node
             node.style({
@@ -259,18 +284,8 @@
               'background-color': '#FF4500', // Sunset orange
               'border-color': '#FFA500' // Yellow
             });
-          });
 
-          cy.on('mouseup', 'node', () => {
-            // Reset styles for all nodes and edges
-            cy.nodes().style({
-              'background-color': '#eee',
-              'border-color': '#ccc'
-            });
-            cy.edges().style({
-              'line-color': '#aaa',
-              'target-arrow-color': '#aaa'
-            });
+            highlightedNode = node; // Update the highlighted node
           });
         })
         .catch(err => {
