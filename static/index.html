@@ -102,19 +102,34 @@
         'line-color': '#00BFFF', // Complementary blue
         'target-arrow-color': '#1E90FF', // Lighter blue
       },
+      GROUP_NODES: {
+        'background-color': '#f9f9f9', // Very light grey
+        'border-color': '#d3d3d3', // Light grey
+        'border-width': 0,
+        'shape': 'round-rectangle',
+      },
     };
 
     let nodeStates = new Map(); // Global state variable to track node states
 
+    function isGroupNode(node) {
+      return node.id().startsWith('group_');
+    }
+
     function resetStyles(cy) {
       cy.nodes().forEach((node) => {
-        node.style(STYLES.DEFAULT);
-        nodeStates.set(node.id(), NODE_STATES.DEFAULT);
+        if (isGroupNode(node)) {
+          node.style(STYLES.GROUP_NODES);
+        } else {
+          node.style(STYLES.DEFAULT);
+          nodeStates.set(node.id(), NODE_STATES.DEFAULT);
+        }
       });
       cy.edges().style(STYLES.EDGE_DEFAULT);
     }
 
     function highlightPredecessors(node) {
+      if (isGroupNode(node)) return; // Skip group nodes
       resetStyles(node.cy());
       node.style(STYLES.HIGHLIGHT_PREDECESSORS);
       node.predecessors('node').style(STYLES.HIGHLIGHT_PREDECESSORS);
@@ -124,6 +139,7 @@
     }
 
     function highlightSuccessors(node) {
+      if (isGroupNode(node)) return; // Skip group nodes
       if (nodeStates.get(node.id()) !== NODE_STATES.DEFAULT) return; // Only highlight if in default state
       node.style(STYLES.HIGHLIGHT_SUCCESSORS);
       node.successors('node').style(STYLES.HIGHLIGHT_SUCCESSORS);
@@ -131,6 +147,7 @@
     }
 
     function resetSuccessors(node) {
+      if (isGroupNode(node)) return; // Skip group nodes
       if (nodeStates.get(node.id()) !== NODE_STATES.DEFAULT) return; // Do not reset if not in default state
       node.style(STYLES.DEFAULT);
       node.successors('node').style(STYLES.DEFAULT);
@@ -197,7 +214,11 @@
 
           // Initialize node states
           cy.nodes().forEach((node) => {
-            nodeStates.set(node.id(), NODE_STATES.DEFAULT);
+            if (isGroupNode(node)) {
+              node.style(STYLES.GROUP_NODES);
+            } else {
+              nodeStates.set(node.id(), NODE_STATES.DEFAULT);
+            }
           });
 
           // Create HTML divs for each node label and title
@@ -207,13 +228,15 @@
             div.innerHTML = node.data('label'); // Render the label as-is
             container.appendChild(div);
 
-            const titleDiv = document.createElement('div');
-            titleDiv.className = 'node-title';
-            titleDiv.innerText = node.data('nodeTitle') || node.id(); // Fallback to node ID if nodeTitle is undefined
-            container.appendChild(titleDiv);
+            if (!isGroupNode(node)) {
+              const titleDiv = document.createElement('div');
+              titleDiv.className = 'node-title';
+              titleDiv.innerText = node.data('nodeTitle') || node.id(); // Fallback to node ID if nodeTitle is undefined
+              container.appendChild(titleDiv);
+              titleDivs[node.id()] = titleDiv;
+            }
 
             labelDivs[node.id()] = div;
-            titleDivs[node.id()] = titleDiv;
           });
 
           // Update position of labels and titles on render
@@ -221,38 +244,49 @@
             cy.nodes().forEach((node) => {
               const position = node.renderedPosition();
               const div = labelDivs[node.id()];
-              const titleDiv = titleDivs[node.id()];
-
-              // Update label position
-              div.style.left = `${position.x}px`;
-              div.style.top = `${position.y}px`;
-              div.style.transform = 'translate(-50%, -50%)';
-
-              // Ensure title width does not exceed label width
-              const maxNodeWidth = div.offsetWidth; // Dynamically get the label div's width
-              titleDiv.style.maxWidth = `${maxNodeWidth}px`;
-              titleDiv.style.overflowWrap = 'break-word'; // Wrap text if too wide
-
-              // Update title position based on label height
-              const labelHeight = div.offsetHeight;
-              const titleHeight = titleDiv.offsetHeight;
-              titleDiv.style.left = `${position.x}px`;
-              titleDiv.style.top = `${position.y - labelHeight / 2 - titleHeight / 2}px`; // Adjust title above the label
-              titleDiv.style.transform = 'translate(-50%, -50%)';
-
-              // Dynamically adjust font size based on zoom level
               const zoomLevel = cy.zoom();
               const baseFontSize = 12; // Base font size
               const minFontSize = 4;
               const adjustedFontSize = Math.max(baseFontSize * zoomLevel, minFontSize);
-              div.style.fontSize = `${adjustedFontSize}px`;
-              titleDiv.style.fontSize = `${adjustedFontSize - 4}px`;
 
-              // Update node dimensions based on label size
-              node.style({
-                width: div.offsetWidth * 1.01 / zoomLevel,
-                height: div.offsetHeight * 1.02 / zoomLevel,
-              });
+              // Dynamically adjust font size based on zoom level
+              div.style.fontSize = `${adjustedFontSize}px`;
+
+              if (isGroupNode(node)) {
+                // Position label in the top-left corner for group nodes
+                div.style.left = `${position.x - node.width() / 2 / zoomLevel}px`;
+                div.style.top = `${position.y - node.height() / 2 / zoomLevel}px`;
+                div.style.transform = 'translate(0, 0)'; // No centering
+              } else {
+
+                // Update label position
+                div.style.left = `${position.x}px`;
+                div.style.top = `${position.y}px`;
+                div.style.transform = 'translate(-50%, -50%)';
+
+                // Update node dimensions based on label size
+                node.style({
+                  width: div.offsetWidth * 1.01 / zoomLevel,
+                  height: div.offsetHeight * 1.02 / zoomLevel,
+                });
+
+                const titleDiv = titleDivs[node.id()];
+
+                // Dynamically adjust title font size based on zoom level
+                titleDiv.style.fontSize = `${adjustedFontSize - 4}px`;
+
+                // Ensure title width does not exceed label width
+                const maxNodeWidth = div.offsetWidth; // Dynamically get the label div's width
+                titleDiv.style.maxWidth = `${maxNodeWidth}px`;
+                titleDiv.style.overflowWrap = 'break-word'; // Wrap text if too wide
+
+                // Update title position based on label height
+                const labelHeight = div.offsetHeight;
+                const titleHeight = titleDiv.offsetHeight;
+                titleDiv.style.left = `${position.x}px`;
+                titleDiv.style.top = `${position.y - labelHeight / 2 - titleHeight / 2}px`; // Adjust title above the label
+                titleDiv.style.transform = 'translate(-50%, -50%)';
+              }
             });
           }
 
@@ -326,6 +360,7 @@
           // Add event listener for highlighting predecessors (toggling on click)
           cy.on('tap', 'node', (event) => {
             const node = event.target;
+            if (isGroupNode(node)) return; // Skip group nodes
             if (nodeStates.get(node.id()) === NODE_STATES.HIGHLIGHT_PREDECESSORS) {
               resetStyles(cy);
             } else {
@@ -336,11 +371,13 @@
           // Add event listeners for highlighting successors (on mouseover and mouseout)
           cy.on('mouseover', 'node', (event) => {
             const node = event.target;
+            if (isGroupNode(node)) return; // Skip group nodes
             highlightSuccessors(node);
           });
 
           cy.on('mouseout', 'node', (event) => {
             const node = event.target;
+            if (isGroupNode(node)) return; // Skip group nodes
             resetSuccessors(node);
           });
         })
