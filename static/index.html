@@ -185,11 +185,9 @@
               titleDiv.style.fontSize = `${adjustedFontSize-4}px`;
 
               // Update node dimensions based on label size
-              const nodeWidth = div.offsetWidth/zoomLevel;
-              const nodeHeight = div.offsetHeight/zoomLevel;
               node.style({
-                width: nodeWidth,
-                height: nodeHeight,
+                width: div.offsetWidth*1.02/zoomLevel,
+                height: div.offsetHeight*1.02/zoomLevel,
               });
             });
           }
@@ -220,7 +218,7 @@
                   gravity: 0.25,
                   numIter: 2500,
                   tile: false,
-                  animate: false,
+                  animate: 'end',
                   animationDuration: 500,
                   tilingPaddingVertical: 10,
                   tilingPaddingHorizontal: 10,
@@ -242,6 +240,38 @@
           cy.on('position',   () => { console.log('position');   updateLabels(); });
           cy.on('dragfree',   () => { console.log('dragfree');   updateLabels(); });
           cy.on('zoom',       () => { console.log('zoom');       updateLabels(); });
+
+          // Add event listeners for node click
+          cy.on('mousedown', 'node', (event) => {
+            const node = event.target;
+
+            // Highlight the clicked node
+            node.style({
+              'background-color': '#FF4500', // Sunset orange
+              'border-color': '#FFA500' // Yellow
+            });
+
+            // Highlight connected edges and nodes
+            node.connectedEdges().style({
+              'line-color': '#FF4500', // Sunset orange
+              'target-arrow-color': '#FFA500' // Yellow
+            }).connectedNodes().style({
+              'background-color': '#FF4500', // Sunset orange
+              'border-color': '#FFA500' // Yellow
+            });
+          });
+
+          cy.on('mouseup', 'node', () => {
+            // Reset styles for all nodes and edges
+            cy.nodes().style({
+              'background-color': '#eee',
+              'border-color': '#ccc'
+            });
+            cy.edges().style({
+              'line-color': '#aaa',
+              'target-arrow-color': '#aaa'
+            });
+          });
         })
         .catch(err => {
           console.error('Error loading graph:', err);
