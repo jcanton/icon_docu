@@ -51,19 +51,6 @@
       padding: 0;
       margin: 0;
     }
-
-    .control-panel {
-      position: fixed;
-      top: 85%;
-      left: 50%;
-      transform: translateX(-50%);
-      display: flex;
-      justify-content: space-around;
-      width: 100%;
-      padding: 10px;
-      background-color: rgba(255, 255, 255, 0.8);
-      z-index: 10;
-    }
   </style>
 </head>
 
@@ -166,7 +153,7 @@
           });
 
           // Update position of labels and titles on render
-          function updateLabelPositions() {
+          function updateLabels() {
             cy.nodes().forEach(node => {
               const position = node.renderedPosition();
               const div = labelDivs[node.id()];
@@ -177,28 +164,32 @@
               div.style.top = `${position.y}px`;
               div.style.transform = 'translate(-50%, -50%)';
 
-              // Update title position based on label height
-              const labelHeight = div.offsetHeight;
-              titleDiv.style.left = `${position.x}px`;
-              titleDiv.style.top = `${position.y - labelHeight / 2 - 10}px`; // Adjust title above the label
-              titleDiv.style.transform = 'translate(-50%, -50%)';
-
               // Ensure title width does not exceed label width
               const maxNodeWidth = div.offsetWidth; // Dynamically get the label div's width
               titleDiv.style.maxWidth = `${maxNodeWidth}px`;
               titleDiv.style.overflowWrap = 'break-word'; // Wrap text if too wide
-              titleDiv.style.fontSize = '12px'; // Default font size
 
-              // Reduce font size if text is still too wide
-              while (titleDiv.scrollWidth > maxNodeWidth && parseFloat(titleDiv.style.fontSize) > 8) {
-                titleDiv.style.fontSize = `${parseFloat(titleDiv.style.fontSize) - 1}px`;
-              }
+              // Update title position based on label height
+              const labelHeight = div.offsetHeight;
+              const titleHeight = titleDiv.offsetHeight;
+              titleDiv.style.left = `${position.x}px`;
+              titleDiv.style.top = `${position.y - labelHeight / 2 - titleHeight / 2}px`; // Adjust title above the label
+              titleDiv.style.transform = 'translate(-50%, -50%)';
+
+              // Dynamically adjust font size based on zoom level
+              const zoomLevel = cy.zoom();
+              const baseFontSize = 12; // Base font size
+              const minFontSize = 4;
+              const adjustedFontSize = Math.max(baseFontSize * zoomLevel, minFontSize);
+              div.style.fontSize = `${adjustedFontSize}px`;
+              titleDiv.style.fontSize = `${adjustedFontSize-4}px`;
 
               // Update node dimensions based on label size
-              const labelWidth = div.offsetWidth;
+              const nodeWidth = div.offsetWidth/zoomLevel;
+              const nodeHeight = div.offsetHeight/zoomLevel;
               node.style({
-                width: labelWidth + 20, // Add padding to account for borders
-                height: labelHeight + 20 // Add padding to account for borders
+                width: nodeWidth,
+                height: nodeHeight,
               });
             });
           }
@@ -210,7 +201,7 @@
                 console.log("MathJax typeset complete");
 
                 // Update node dimensions before applying the layout
-                updateLabelPositions();
+                updateLabels();
                 console.log("Labels updated");
 
                 // Apply the layout after MathJax processing
@@ -245,11 +236,12 @@
           
           updateLayout();
 
-          cy.on('layoutstop', () => { console.log('layoutstop'); updateLabelPositions(); });
-          cy.on('render',     () => { console.log('render');     updateLabelPositions(); });
-          cy.on('pan zoom',   () => { console.log('pan zoom');   updateLabelPositions(); });
-          cy.on('position',   () => { console.log('position');   updateLabelPositions(); });
-          cy.on('dragfree',   () => { console.log('dragfree');   updateLabelPositions(); });
+          cy.on('layoutstop', () => { console.log('layoutstop'); updateLabels(); });
+          cy.on('render',     () => { console.log('render');     updateLabels(); });
+          cy.on('pan zoom',   () => { console.log('pan zoom');   updateLabels(); });
+          cy.on('position',   () => { console.log('position');   updateLabels(); });
+          cy.on('dragfree',   () => { console.log('dragfree');   updateLabels(); });
+          cy.on('zoom',       () => { console.log('zoom');       updateLabels(); });
         })
         .catch(err => {
           console.error('Error loading graph:', err);
