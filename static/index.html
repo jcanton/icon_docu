@@ -136,6 +136,8 @@
           const labelDivs = {};
           const titleDivs = {};
           let highlightedNode = null; // Track the currently highlighted node
+          let highlightedPredecessors = null; // Track the currently highlighted predecessors
+          let highlightedSuccessors = null; // Track the currently highlighted successors
 
           // Create HTML divs for each node label and title
           cy.nodes().forEach(node => {
@@ -286,6 +288,94 @@
             });
 
             highlightedNode = node; // Update the highlighted node
+          });
+
+          // Add event listener for highlighting predecessors (toggling on click)
+          cy.on('tap', 'node', (event) => {
+            const node = event.target;
+
+            // If the clicked node is already highlighted for predecessors, reset styles
+            if (highlightedPredecessors === node) {
+              cy.nodes().style({
+                'background-color': '#eee',
+                'border-color': '#ccc'
+              });
+              cy.edges().style({
+                'line-color': '#aaa',
+                'target-arrow-color': '#aaa'
+              });
+              highlightedPredecessors = null; // Clear the highlighted predecessors
+              return;
+            }
+
+            // Reset styles for predecessors
+            cy.nodes().style({
+              'background-color': '#eee',
+              'border-color': '#ccc'
+            });
+            cy.edges().style({
+              'line-color': '#aaa',
+              'target-arrow-color': '#aaa'
+            });
+
+            // Highlight the clicked node
+            node.style({
+              'background-color': '#FF4500', // Sunset orange
+              'border-color': '#FFA500' // Yellow
+            });
+
+            // Highlight predecessors
+            node.incomers('node').style({
+              'background-color': '#FF4500', // Sunset orange
+              'border-color': '#FFA500' // Yellow
+            });
+            node.incomers('edge').style({
+              'line-color': '#FF4500', // Sunset orange
+              'target-arrow-color': '#FFA500' // Yellow
+            });
+
+            highlightedPredecessors = node; // Update the highlighted predecessors
+          });
+
+          // Add event listeners for highlighting successors (on mouseover and mouseout)
+          cy.on('mouseover', 'node', (event) => {
+            const node = event.target;
+
+            // Highlight the hovered node
+            node.style({
+              'background-color': '#00BFFF', // Complementary blue
+              'border-color': '#1E90FF' // Lighter blue
+            });
+
+            // Highlight successors
+            node.outgoers('node').style({
+              'background-color': '#00BFFF', // Complementary blue
+              'border-color': '#1E90FF' // Lighter blue
+            });
+            node.outgoers('edge').style({
+              'line-color': '#00BFFF', // Complementary blue
+              'target-arrow-color': '#1E90FF' // Lighter blue
+            });
+          });
+
+          cy.on('mouseout', 'node', (event) => {
+            const node = event.target;
+
+            // Reset styles for the hovered node
+            node.style({
+              'background-color': '#eee',
+              'border-color': '#ccc'
+            });
+
+            // Reset styles for successors
+            node.outgoers('node').style({
+              'background-color': '#eee',
+              'border-color': '#ccc'
+            });
+            node.outgoers('edge').style({
+              'line-color': '#aaa',
+              'target-arrow-color': '#aaa'
+            });
           });
         })
         .catch(err => {
