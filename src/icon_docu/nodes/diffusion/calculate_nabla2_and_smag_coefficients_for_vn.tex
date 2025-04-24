@@ -1,4 +1,4 @@
-$$\begin{aligned}
+\begin{aligned}
     & \Khsmag{\n}{\e}{\k} = \min{\left(\smaglimit, \max{\left(0, \Khsmag{}{\e}{} - \smagoffset \right)} \right)} \\
     & \Khsmag{}{ec}{} = \Khsmag{}{\e}{} = \diffmultfacsmag \sqrt{ \khsmagtwo^2 + \khsmagone^2 } \\
     %
@@ -14,10 +14,10 @@ $$\begin{aligned}
                  + \left( \windu{}{\v 1}{} \orientationtangx{\v 1} + \windv{}{\v 1}{} \orientationtangy{\v 1} \right) \\
     & \dvtnorm = - \left( \windu{}{\v 2}{} \orientationtangx{\v 2} + \windv{}{\v 2}{} \orientationtangy{\v 2} \right)
                  + \left( \windu{}{\v 3}{} \orientationtangx{\v 3} + \windv{}{\v 3}{} \orientationtangy{\v 3} \right) \\
-\end{aligned}$$
+\end{aligned}
 <br>
 <hr>
-$$\begin{aligned}
+\begin{aligned}
     & \Khsmag{\n}{\e}{\k} &&= \min{\left(\smaglimit, \max{\left(0, \diffmultfacsmag \sqrt{ * } - \smagoffset \right)} \right)} \\
     & * &&= \left(
             \frac{
@@ -39,4 +39,20 @@ $$\begin{aligned}
                 + \left( \windu{}{\v 3}{} \orientationtangx{\v 3} + \windv{}{\v 3}{} \orientationtangy{\v 3} \right)
             }{\Lvertvert}
         \right)^2
-\end{aligned}$$
+\end{aligned}
+<br>
+<hr>
+\begin{aligned}
+    & \vnlapl{\n}{\e}{\k} && = 4 \left[
+            \frac{
+                  \windu{}{\v 0}{} \orientationnormx{\v 0} + \windv{}{\v 0}{} \orientationnormy{\v 0}
+                + \windu{}{\v 1}{} \orientationnormx{\v 1} + \windv{}{\v 1}{} \orientationnormy{\v 1}
+                - 2 \vn{}{\e}{}
+            }{\Ledge^2}
+            + \frac{
+                  \windu{}{\v 2}{} \orientationnormx{\v 2} + \windv{}{\v 2}{} \orientationnormy{\v 2}
+                + \windu{}{\v 3}{} \orientationnormx{\v 3} + \windv{}{\v 3}{} \orientationnormy{\v 3}
+                - 2 \vn{}{\e}{}
+            }{\Lvertvert^2}
+        \right]
+\end{aligned}

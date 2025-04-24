@@ -80,6 +80,11 @@ def load_graph():
             # diffusion
             {"data": {"source": "calculate_nabla2_for_theta", "target": "update_theta_and_exner"}},
             {"data": {"source": "calculate_nabla2_and_smag_coefficients_for_vn", "target": "calculate_nabla2_for_theta"}},
+            {"data": {"source": "calculate_nabla2_and_smag_coefficients_for_vn", "target": "apply_diffusion_to_vn"}},
+            {"data": {"source": "calculate_nabla2_and_smag_coefficients_for_vn", "target": "calculate_nabla4"}},
+            {"data": {"source": "mo_intp_rbf_rbf_vec_interpol_vertex", "target": "calculate_nabla2_and_smag_coefficients_for_vn"}},
+            {"data": {"source": "mo_intp_rbf_rbf_vec_interpol_vertex", "target": "calculate_nabla4"}},
+            {"data": {"source": "calculate_nabla4", "target": "apply_diffusion_to_vn"}},
         ]
     }
 

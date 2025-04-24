@@ -63,6 +63,7 @@
 \newcommand{\pdxn}[1]{\frac{\partial #1}{\partial n}}
 \newcommand{\pdxt}[1]{\frac{\partial #1}{\partial t}}
 \newcommand{\lapl}[1]{\nabla^2\!\!\left(#1\right)}
+\newcommand{\lapllapl}[1]{\nabla^4\!\!\left(#1\right)}
 
 % Variables with helper macros for formatting superscript and subscript
 %
@@ -72,6 +73,8 @@
 \newcommand{\windu}[3]{           \variable{u                                    }{#1}{#2}{#3}}
 \newcommand{\windv}[3]{           \variable{v                                    }{#1}{#2}{#3}}
 \newcommand{\vn}[3]{              \variable{v_n                                  }{#1}{#2}{#3}}
+\newcommand{\vnlapl}[3]{          \variable{\lapl{\vn{#1}{}{}}                   }{  }{#2}{#3}}
+\newcommand{\vnlapllapl}[3]{      \variable{\lapllapl{\vn{#1}{}{}}               }{  }{#2}{#3}}
 \newcommand{\vt}[3]{              \variable{v_t                                  }{#1}{#2}{#3}}
 \newcommand{\vh}[3]{              \variable{\vec{v_h}                            }{#1}{#2}{#3}}
 \newcommand{\w}[3]{               \variable{w                                    }{#1}{#2}{#3}}
@@ -147,6 +150,7 @@
 
 % Inter/extrapolation and derivative weights
 \newcommand{\cellarea}{a_c}
+\newcommand{\edgearea}{a_e}
 \newcommand{\Wrbf}{\overset{\scriptscriptstyle{\text{rbf}}}{\chi}}
 \newcommand{\Wlev}{\overset{\scriptscriptstyle{\text{lev}}}{\chi}}
 \newcommand{\Whor}{\overset{\scriptscriptstyle{\text{hor}}}{\chi}}
@@ -178,7 +182,10 @@
 \newcommand{\geofacgrgy}{\mathtt{geofac\_grg\_y}}
 %
 \newcommand{\diffmultfacsmag}{\mathtt{diff\_multfac\_smag}}
+\newcommand{\diffmultfacvn}{\mathtt{diff\_multfac\_vn}}
 \newcommand{\khsmagone}{\mathtt{kh\_smag\_1}}
 \newcommand{\khsmagtwo}{\mathtt{kh\_smag\_2}}
 \newcommand{\dvtnorm}{\mathtt{dvt\_norm}}
 \newcommand{\dvttang}{\mathtt{dvt\_tang}}
+\newcommand{\nabvtang}{\mathtt{nabv\_tang}}
+\newcommand{\nabvnorm}{\mathtt{nabv\_norm}}
