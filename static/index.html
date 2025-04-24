@@ -254,9 +254,9 @@
 
               if (isGroupNode(node)) {
                 // Position label in the top-left corner for group nodes
-                div.style.left = `${position.x - node.width() / 2 / zoomLevel}px`;
-                div.style.top = `${position.y - node.height() / 2 / zoomLevel}px`;
-                div.style.transform = 'translate(0, 0)'; // No centering
+                div.style.left = `${position.x - node.width() / 2 * zoomLevel}px`;
+                div.style.top = `${position.y - node.height() / 2 * zoomLevel}px`;
+                // div.style.transform = 'translate(-50%, -50%)';
               } else {
 
                 // Update label position
