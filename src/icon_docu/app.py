@@ -82,9 +82,11 @@ def load_graph():
             {"data": {"source": "calculate_nabla2_and_smag_coefficients_for_vn", "target": "calculate_nabla2_for_theta"}},
             {"data": {"source": "calculate_nabla2_and_smag_coefficients_for_vn", "target": "apply_diffusion_to_vn"}},
             {"data": {"source": "calculate_nabla2_and_smag_coefficients_for_vn", "target": "calculate_nabla4"}},
+            {"data": {"source": "calculate_nabla2_and_smag_coefficients_for_vn", "target": "mo_intp_rbf_rbf_vec_interpol_vertex"}},
             {"data": {"source": "mo_intp_rbf_rbf_vec_interpol_vertex", "target": "calculate_nabla2_and_smag_coefficients_for_vn"}},
             {"data": {"source": "mo_intp_rbf_rbf_vec_interpol_vertex", "target": "calculate_nabla4"}},
             {"data": {"source": "calculate_nabla4", "target": "apply_diffusion_to_vn"}},
+            {"data": {"source": "calculate_nabla2_for_w", "target": "apply_diffusion_to_w_and_compute_horizontal_gradients_for_turbulence"}},
         ]
     }
 

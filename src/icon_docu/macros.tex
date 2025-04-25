@@ -62,8 +62,8 @@
 \newcommand{\pdzz}[1]{\frac{\partial^2 #1}{\partial z^2}}
 \newcommand{\pdxn}[1]{\frac{\partial #1}{\partial n}}
 \newcommand{\pdxt}[1]{\frac{\partial #1}{\partial t}}
-\newcommand{\lapl}[1]{\nabla^2\!\!\left(#1\right)}
-\newcommand{\lapllapl}[1]{\nabla^4\!\!\left(#1\right)}
+\newcommand{\lapl}[1]{\nabla^2\!\left(#1\right)}
+\newcommand{\lapllapl}[1]{\nabla^4\!\left(#1\right)}
 
 % Variables with helper macros for formatting superscript and subscript
 %
@@ -78,6 +78,7 @@
 \newcommand{\vt}[3]{              \variable{v_t                                  }{#1}{#2}{#3}}
 \newcommand{\vh}[3]{              \variable{\vec{v_h}                            }{#1}{#2}{#3}}
 \newcommand{\w}[3]{               \variable{w                                    }{#1}{#2}{#3}}
+\newcommand{\wlapl}[3]{           \variable{\lapl{\w{#1}{}{}}                    }{  }{#2}{#3}}
 \newcommand{\wcc}[3]{             \variable{w_{\text{cc}}                        }{#1}{#2}{#3}}
 \newcommand{\kinehori}[3]{        \variable{K_h                                  }{#1}{#2}{#3}}
 \newcommand{\advvn}[3]{           \variable{\text{adv}(v_n)                      }{#1}{#2}{#3}}
@@ -183,6 +184,7 @@
 %
 \newcommand{\diffmultfacsmag}{\mathtt{diff\_multfac\_smag}}
 \newcommand{\diffmultfacvn}{\mathtt{diff\_multfac\_vn}}
+\newcommand{\diffmultfacw}{\mathtt{diff\_multfac\_w}}
 \newcommand{\khsmagone}{\mathtt{kh\_smag\_1}}
 \newcommand{\khsmagtwo}{\mathtt{kh\_smag\_2}}
 \newcommand{\dvtnorm}{\mathtt{dvt\_norm}}

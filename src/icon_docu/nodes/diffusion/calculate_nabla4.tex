@@ -1,9 +1,9 @@
 \begin{aligned}
-    & \nabvtang = \windu{}{\v 0}{} \orientationnormx{\v 0} + \windv{}{\v 0}{} \orientationnormy{\v 0}
-                + \windu{}{\v 1}{} \orientationnormx{\v 1} + \windv{}{\v 1}{} \orientationnormy{\v 1}
+    & \nabvtang = \vnlapl{}{\v^x 0}{} \orientationnormx{\v 0} + \vnlapl{}{\v^y 0}{} \orientationnormy{\v 0}
+                + \vnlapl{}{\v^x 1}{} \orientationnormx{\v 1} + \vnlapl{}{\v^y 1}{} \orientationnormy{\v 1}
     \\
-    & \nabvnorm = \windu{}{\v 2}{} \orientationnormx{\v 2} + \windv{}{\v 2}{} \orientationnormy{\v 2}
-                + \windu{}{\v 3}{} \orientationnormx{\v 3} + \windv{}{\v 3}{} \orientationnormy{\v 3}
+    & \nabvnorm = \vnlapl{}{\v^x 2}{} \orientationnormx{\v 2} + \vnlapl{}{\v^y 2}{} \orientationnormy{\v 2}
+                + \vnlapl{}{\v^x 3}{} \orientationnormx{\v 3} + \vnlapl{}{\v^y 3}{} \orientationnormy{\v 3}
     \\
     & \vnlapllapl{\n}{\e}{\k} = 4 \left[
               \frac{ \nabvnorm - 2 \vnlapl{\n}{\e}{\k} }{\Lvertvert^2}
